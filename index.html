@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <style>
+        :root {
+            --skin: #e0ac69;
+            --shorts: #ff6b6b;
+            --sand: #f7d794;
+            --ocean: #48dbfb;
+            --cheese: #f1c40f;
+            --bg-blue: #46d1ff;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-blue);
+            font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+        }
+
+        #stage {
+            width: 100vw; height: 100vh;
+            perspective: 1000px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #camera {
+            position: relative; width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- SCENERY --- */
+        .sky {
+            position: absolute; top: 0; width: 100%; height: 60%;
+            background: linear-gradient(#0abde3, var(--bg-blue));
+        }
+        .ocean {
+            position: absolute; top: 50%; width: 100%; height: 20%;
+            background: var(--ocean);
+            box-shadow: inset 0 20px 50px rgba(255,255,255,0.3);
+        }
+        .sand {
+            position: absolute; bottom: 0; width: 100%; height: 40%;
+            background: var(--sand);
+        }
+
+        /* --- THE MAN (DAD BOD) --- */
+        .man-container {
+            position: absolute; bottom: 15%; left: 35%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .chair {
+            width: 350px; height: 90px;
+            background: white; transform: skewX(-20deg);
+            border-radius: 5px; box-shadow: 10px 10px 20px rgba(0,0,0,0.1);
+        }
+        .man {
+            position: absolute; top: -50px; left: 30px;
+            width: 300px; height: 150px;
+        }
+        .head {
+            position: absolute; width: 55px; height: 65px;
+            background: var(--skin); border-radius: 50% 50% 40% 40%;
+            left: 0; bottom: 80px; transform: rotate(-10deg);
+        }
+        .shades {
+            position: absolute; top: 18px; left: -5px;
+            width: 60px; height: 14px; background: #222; border-radius: 5px;
+        }
+        .belly {
+            position: absolute; width: 120px; height: 100px;
+            background: var(--skin); border-radius: 50%;
+            bottom: 10px; left: 70px;
+            animation: breathe 4s infinite ease-in-out;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1);
+        }
+        @keyframes breathe { 50% { transform: scale(1.1); } }
+        .arm-cheese {
+            position: absolute; width: 80px; height: 20px;
+            background: var(--skin); left: 90px; bottom: 90px;
+            transform-origin: left center;
+            animation: eat 5s infinite ease-in-out;
+            border-radius: 10px;
+        }
+        @keyframes eat {
+            0%, 30%, 100% { transform: rotate(0deg); }
+            50%, 70% { transform: rotate(-85deg); }
+        }
+
+        /* --- THE HOPPING CHEESE CHARACTER --- */
+        #cute-cheese {
+            position: absolute; bottom: 20%; left: 70%;
+            width: 150px; height: 150px;
+            display: none; z-index: 20;
+            animation: bounce 0.5s infinite alternate ease-in-out;
+        }
+        .cheese-body {
+            position: relative; width: 100px; height: 100px;
+            background: #ffcc33;
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            border-radius: 10px;
+        }
+        .face {
+            position: absolute; top: 65px; left: 25px;
+            width: 50px; display: flex; justify-content: space-around;
+        }
+        .eye { width: 6px; height: 6px; background: #000; border-radius: 50%; }
+        .smile { 
+            position: absolute; top: 10px; left: 15px;
+            width: 18px; height: 8px; border-bottom: 2px solid #000;
+            border-radius: 0 0 20px 20px;
+        }
+        .alex-credit {
+            position: absolute; top: -40px; left: -20px;
+            background: white; padding: 4px 8px; border-radius: 10px;
+            font-size: 12px; white-space: nowrap; border: 1px solid #333;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-40px); } }
+
+        /* --- TEXT STYLING (Adjusted to not block view) --- */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 100;
+            display: flex; flex-direction: column; align-items: center;
+            padding-top: 50px; /* Moves text to top */
+        }
+
+        #caption {
+            font-size: 30px; color: #2d3436; text-shadow: 2px 2px 0 white;
+            transition: 0.5s;
+        }
+
+        #bday-content {
+            display: none;
+            text-align: center;
+        }
+
+        .small-header { font-size: 30px; margin: 0; color: #333; font-weight: bold; }
+        .huge-header { 
+            font-size: 80px; margin: 5px 0; color: white;
+            -webkit-text-stroke: 3px black;
+            text-shadow: 5px 5px 0px rgba(0,0,0,0.1);
+        }
+        .happy-bday { font-size: 60px; color: #333; margin: 0; }
+        .goodo { font-size: 24px; color: #222; background: rgba(255,255,255,0.7); padding: 5px 15px; border-radius: 20px; margin-top: 10px; }
+
+        .confetti {
+            position: absolute; width: 10px; height: 10px;
+            top: -20px; animation: fall linear forwards;
+        }
+        @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+    </style>
+</head>
+<body>
+
+<div id="stage">
+    <div id="camera">
+        <div class="sky"></div>
+        <div class="ocean"></div>
+        <div class="sand"></div>
+
+        <!-- The Relaxing Man -->
+        <div class="man-container">
+            <div class="chair"></div>
+            <div class="man">
+                <div class="head"><div class="shades"></div></div>
+                <div class="belly"></div>
+                <div style="position: absolute; width: 130px; height: 70px; background: var(--skin); bottom: 60px; left: 60px; border-radius: 40px 40px 0 0;"></div>
+                <div class="arm-cheese">
+                    <div style="position: absolute; right: -25px; top: -15px; width: 30px; height: 25px; background: var(--cheese); clip-path: polygon(0% 0%, 100% 50%, 0% 100%);"></div>
+                </div>
+                <div style="position: absolute; width: 80px; height: 50px; background: var(--shorts); bottom: 25px; left: 140px; border-radius: 5px;"></div>
+                <div style="position: absolute; width: 140px; height: 35px; background: var(--skin); bottom: 35px; left: 200px; border-radius: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Cute Hopping Cheese Character -->
+        <div id="cute-cheese">
+            <div class="alex-credit">Contributions of Alex💡</div>
+            <div class="cheese-body">
+                <div class="face">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                    <div class="smile"></div>
+                </div>
+            </div>
+            <!-- tiny legs -->
+            <div style="width:2px; height:12px; background:#000; position:absolute; left:35px; bottom:-10px;"></div>
+            <div style="width:2px; height:12px; background:#000; position:absolute; left:65px; bottom:-10px;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="overlay">
+    <h1 id="caption">Life is good when there is cheese.</h1>
+    
+    <div id="bday-content">
+        <p class="small-header">just like cheese,</p>
+        <h1 class="huge-header">BETTER WITH AGE</h1>
+        <h2 class="happy-bday">HAPPY BIRTHDAY!</h2>
+        <div class="goodo">Everything is "goodo" with cheese! 🧀</div>
+    </div>
+</div>
+
+<script>
+    const bdayContent = document.getElementById('bday-content');
+    const caption = document.getElementById('caption');
+    const camera = document.getElementById('camera');
+    const cuteCheese = document.getElementById('cute-cheese');
+
+    // Reveal Logic
+    setTimeout(() => {
+        caption.style.opacity = '0';
+        
+        setTimeout(() => {
+            caption.style.display = 'none';
+            
+            // Move camera to a "Wide Shot" that sees everything clearly
+            camera.style.transform = 'translateZ(-400px) translateY(50px)';
+            
+            bdayContent.style.display = 'block';
+            cuteCheese.style.display = 'block';
+            
+            setInterval(spawnConfetti, 100);
+        }, 800);
+    }, 4000);
+
+    function spawnConfetti() {
+        const colors = ['#FFD700', '#FF6B6B', '#48DBFB', '#1DD1A1', '#FF9FF3'];
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = Math.random() * 2 + 2 + 's';
+        if (Math.random() > 0.5) c.style.borderRadius = '50%';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+</script>
+
+</body>
+</html>
